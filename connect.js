@@ -10,3 +10,13 @@ export const db = mysql.createPool({
   database: process.env.DB_NAME_PROD,
   connectionLimit: 10,
 });
+
+// Ajoute ce bloc pour tester la connexion :
+db.getConnection()
+  .then(conn => {
+    console.log('Connexion MySQL réussie !');
+    conn.release();
+  })
+  .catch(err => {
+    console.error('Erreur de connexion MySQL :', err);
+  });

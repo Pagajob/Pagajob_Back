@@ -122,10 +122,11 @@ export const login = async (req, res) => {
         const { password, ...other } = user;
 
         res.cookie("access_token", token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'Lax',
-        }).status(200).json(other);
+          httpOnly: true,
+          secure: true,
+          sameSite: "None",
+          domain: ".pagajob.com"
+        });
 
     } catch (err) {
         return res.status(500).json(err);

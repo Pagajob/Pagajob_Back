@@ -72,7 +72,7 @@ export const register = async (req, res) => {
     // Après avoir créé l'utilisateur et récupéré userId
     if (req.body.role === 'company') {
       await db.query(
-        "INSERT INTO companies (idUser, companyName) VALUES (?, ?)",
+        "INSERT INTO companies (idUser, legalName) VALUES (?, ?)",
         [userId, req.body.companyName]
       );
     }

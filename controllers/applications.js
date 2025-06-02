@@ -236,16 +236,24 @@ export const updateApplicationStatus = async (req, res) => {
       const [Name2] = await db.query("SELECT name FROM companies WHERE id = ?", [companyId]);
       if (Name2.length > 0) {
         Name = Name2[0].name;
-      } 
+      }
+
+      // Message personnalisé selon le statut
+      const message =
+        status === 'accepted'
+          ? `${Name} a accepté votre candidature à la mission !`
+          : `${Name} a refusé votre candidature à la mission !`;
+
       await db.query(
         `INSERT INTO notifications (userId, type, applicationId, missionId, companyId, \`read\`, createdAt, message)
-         VALUES (?, ?, ?, ?, ?, 0, NOW(), '${Name} a accepté votre candidature à la mission !')`,
+         VALUES (?, ?, ?, ?, ?, 0, NOW(), ?)`,
         [
           usersId,
-          status === 'accepted' ? 'application' : 'rejected', 
+          status === 'accepted' ? 'application' : 'rejected',
           applicationId,
           missionId,
-          companyId
+          companyId,
+          message
         ]
       );
     }

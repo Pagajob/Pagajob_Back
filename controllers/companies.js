@@ -63,6 +63,7 @@ export const setCompanies = async (req, res) => {
         const updateQuery = `
         UPDATE companies SET
             idUser = ?,
+            name = ?, 
             legalName = ?,
             siret = ?,
             siren = ?,
@@ -81,6 +82,7 @@ export const setCompanies = async (req, res) => {
 
         const updateValues = [
         req.body.idUser,
+        req.body.name,
         req.body.legalName,
         req.body.siret,
         req.body.siren,

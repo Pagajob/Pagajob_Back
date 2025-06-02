@@ -231,15 +231,15 @@ export const updateApplicationStatus = async (req, res) => {
     );
     if (rows.length) {
       const { usersId, missionId, companyId } = rows[0];
-      let legalName = null;
+      let Name = null;
 
-      const [legalName2] = await db.query("SELECT legalName FROM companies WHERE id = ?", [companyId]);
-      if (legalName2.length > 0) {
-        legalName = legalName2[0].legalName;
+      const [Name2] = await db.query("SELECT name FROM companies WHERE id = ?", [companyId]);
+      if (Name2.length > 0) {
+        Name = Name2[0].name;
       } 
       await db.query(
         `INSERT INTO notifications (userId, type, applicationId, missionId, companyId, \`read\`, createdAt, message)
-         VALUES (?, ?, ?, ?, ?, 0, NOW(), '${legalName} a accepté votre candidature à la mission !')`,
+         VALUES (?, ?, ?, ?, ?, 0, NOW(), '${Name} a accepté votre candidature à la mission !')`,
         [
           usersId,
           status === 'accepted' ? 'application' : 'rejected', 

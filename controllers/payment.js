@@ -74,8 +74,8 @@ export const setPayment = async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: 'http://localhost:5173/subscription/success', 
-      cancel_url: 'http://localhost:5173/subscription/cancel',
+      success_url: `${FRONTEND_URL}/subscription/success`,
+      cancel_url: `${FRONTEND_URL}/subscription/cancel`,
       metadata: {
         userId: req.userId, 
         priceId: req.body.priceId

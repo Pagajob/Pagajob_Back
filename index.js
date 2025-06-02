@@ -1,4 +1,5 @@
 import express from 'express';
+import { db } from './connect.js';
 
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
@@ -78,3 +79,10 @@ const port = process.env.PORT || 8800;
 app.listen(port, () => {
   console.log('Server running on port', port);
 });
+
+// Ping MySQL toutes les 10 minutes pour éviter la mise en veille
+setInterval(() => {
+  db.query('SELECT 1')
+    .then(() => console.log('Ping MySQL OK'))
+    .catch(err => console.error('Ping MySQL failed:', err));
+}, 10 * 60 * 1000); // 10 minutes

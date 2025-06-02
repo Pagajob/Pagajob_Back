@@ -94,8 +94,13 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     const q = "SELECT * FROM users WHERE email = ?";
     try {
+        console.log("Login called with body:", req.body);
+
         const [data] = await db.query(q, [req.body.email]);
-        if (data.length === 0) return res.status(404).json("Utilisateur non trouvé !");
+        if (data.length === 0) {
+          console.log("Login error: user not found");
+          return res.status(404).json("Utilisateur non trouvé !");
+        }
 
         let user = data[0];
 
@@ -105,7 +110,7 @@ export const login = async (req, res) => {
             user.boostExpiration &&
             new Date(user.boostExpiration) < new Date()
         ) {
-            // Expiré : repasse en free
+            console.log("Boost expired for user:", user.id);
             await db.query(
                 "UPDATE users SET subscriptionTier = 'free', boostExpiration = NULL WHERE id = ?",
                 [user.id]
@@ -115,7 +120,10 @@ export const login = async (req, res) => {
         }
 
         const isPasswordCorrect = bcrypt.compareSync(req.body.password, user.password);
-        if (!isPasswordCorrect) return res.status(400).json("Mauvais mot de passe ou email !");
+        if (!isPasswordCorrect) {
+          console.log("Login error: wrong password for user:", user.email);
+          return res.status(400).json("Mauvais mot de passe ou email !");
+        }
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
 
@@ -127,7 +135,12 @@ export const login = async (req, res) => {
           sameSite: "None"
         });
 
+        console.log("Login success for user:", user.id);
+
+        return res.status(200).json(other);
+
     } catch (err) {
+        console.error("Login error:", err);
         return res.status(500).json(err);
     }
 };

@@ -79,7 +79,7 @@ export const register = async (req, res) => {
 
     if (req.body.role === 'student') {
       await db.query(
-        "INSERT INTO student (idUser) VALUES (?)",
+        "INSERT INTO students (idUser) VALUES (?)",
         [userId]
       );
     }

@@ -8,10 +8,10 @@ export const db = mysql.createPool({
   user: process.env.DB_USER_PROD,
   password: process.env.DB_PASSWORD_PROD,
   database: process.env.DB_NAME_PROD,
-  connectionLimit: 10,
+  timezone: process.env.DB_TIMEZONE,
 });
 
-// Ajoute ce bloc pour tester la connexion :
+// teste la connexion :
 db.getConnection()
   .then(conn => {
     console.log('Connexion MySQL réussie !');

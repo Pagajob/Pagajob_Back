@@ -331,7 +331,7 @@ export const getApplicationsByMission = async (req, res) => {
   const { missionId } = req.params;
   try {
     const [rows] = await db.query(
-      `SELECT a.id, a.status, a.appliedAt, u.firstName AS studentName, u.email AS studentEmail
+      `SELECT a.id, a.status, a.appliedAt, u.id AS studentUserId, u.firstName AS studentName, u.lastName AS studentLastName, u.email AS studentEmail
        FROM applications a
        JOIN users u ON a.usersId = u.id
        WHERE a.missionId = ?`,

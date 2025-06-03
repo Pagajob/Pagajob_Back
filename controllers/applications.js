@@ -57,10 +57,14 @@ export const getApplicationStatus = async (req, res) => {
 export const countApplicationsThisMonth = async (req, res) => {
   const { userId } = req.query;
   try {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
     const [rows] = await db.query(
       `SELECT COUNT(*) AS count FROM applications
-       WHERE usersId = ? AND appliedAt >= DATE_FORMAT(NOW(), '%Y-%m-01')`,
-      [userId]
+      WHERE usersId = ? AND appliedAt >= ?`,
+      [userId, startOfMonth]
     );
     res.json({ count: rows[0].count });
   } catch (err) {
@@ -95,21 +99,22 @@ export const applyToMission = async (req, res) => {
 
     // Insère la candidature et récupère son id
     const [result] = await db.query(
-      "INSERT INTO applications (companyId, missionId, usersId, appliedAt, status) VALUES (?, ?, ?, NOW(), 'pending')",
-      [companyId, missionId, userId]
+      "INSERT INTO applications (companyId, missionId, usersId, appliedAt, status) VALUES (?, ?, ?, ?, 'pending')",
+      [companyId, missionId, userId, new Date()]
     );
     const applicationId = result.insertId;
 
     // Crée une notification pour l'entreprise (userId = idUser de la company)
     await db.query(
       `INSERT INTO notifications (userId, type, applicationId, missionId, companyId, \`read\`, createdAt, message)
-       VALUES (?, ?, ?, ?, ?, 0, NOW(), ?)`,
+       VALUES (?, ?, ?, ?, ?, 0, ?, ?)`,
       [
-        companyUserId, // <-- ici c'est bien l'id du user entreprise
+        companyUserId,
         'application',
         applicationId,
         missionId,
         companyId,
+        new Date(),
         `Un étudiant a postulé à votre mission !`
       ]
     );
@@ -130,8 +135,8 @@ export const applyToMission = async (req, res) => {
 
       // Crée la conversation
       await db.query(
-        "INSERT INTO conversations (missionId, participants, createdAt) VALUES (?, ?, NOW())",
-        [missionId, `${userId},${companyUserId}`]
+        "INSERT INTO conversations (missionId, participants, createdAt) VALUES (?, ?, ?)",
+        [missionId, `${userId},${companyUserId}`, new Date()]
       );
     }
 
@@ -246,13 +251,14 @@ export const updateApplicationStatus = async (req, res) => {
 
       await db.query(
         `INSERT INTO notifications (userId, type, applicationId, missionId, companyId, \`read\`, createdAt, message)
-         VALUES (?, ?, ?, ?, ?, 0, NOW(), ?)`,
+         VALUES (?, ?, ?, ?, ?, 0, ?, ?)`,
         [
           usersId,
           status === 'accepted' ? 'application' : 'rejected',
           applicationId,
           missionId,
           companyId,
+          new Date(),
           message
         ]
       );

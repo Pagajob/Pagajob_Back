@@ -303,8 +303,8 @@ export const updateMissionStatus = async (req, res) => {
         );
         // Transaction entreprise
         await db.query(
-          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'transfer_comp_stud_pend_out', ?, ?, 'Transfère du montant de la mission en pending', NOW())",
-          [iduser, amount, missionId]
+          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'transfer_comp_stud_pend_out', ?, ?, 'Transfère du montant de la mission en pending', ?)",
+          [iduser, amount, missionId, new Date()]
         );
         // Ajoute le montant en pending dans le wallet de l'étudiant
         await db.query(
@@ -313,8 +313,8 @@ export const updateMissionStatus = async (req, res) => {
         );
         // Transaction pending étudiant
         await db.query(
-          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'transfer_comp_stud_pend_in', ?, ?, ?, NOW())",
-          [studentId, amount, missionId, `Montant en attente de la fin de mission - ${title}`]
+          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'transfer_comp_stud_pend_in', ?, ?, ?, ?)",
+          [studentId, amount, missionId, `Montant en attente de la fin de mission - ${title}`, new Date()]
         );
       }
     }
@@ -353,12 +353,13 @@ export const validateMissionCompany = async (req, res) => {
       // Crée la notification pour l'étudiant avec le nom de l'entreprise
       await db.query(
         `INSERT INTO notifications (userId, type, missionId, companyId, \`read\`, createdAt, message)
-         VALUES (?, ?, ?, ?, 0, NOW(), ?)`,
+         VALUES (?, ?, ?, ?, 0, ?, ?)`,
         [
           studentUserId,
           'mission_validated_by_company',
           missionId,
           companyId,
+          new Date(),
           `L'entreprise ${legalName} a validé la mission. Vous pouvez la clôturer si ce n'est pas déjà fait.`
         ]
       );
@@ -406,13 +407,13 @@ export const validateMissionCompany = async (req, res) => {
         );
 
         const [res3] = await db.query(
-          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'release', ?, ?, ?, NOW())",
-          [studentUserId, amount, missionId, `Libération du paiement mission terminée - ${missionTitle}`]
+          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'release', ?, ?, ?, ?)",
+          [studentUserId, amount, missionId, `Libération du paiement mission terminée - ${missionTitle}`, new Date()]
         );
 
         const [res4] = await db.query(
-          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'release', ?, ?, ?, NOW())",
-          [iduser, amount, missionId, `Libération du paiement mission terminée - ${missionTitle}`]
+          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'release', ?, ?, ?, ?)",
+          [iduser, amount, missionId, `Libération du paiement mission terminée - ${missionTitle}`, new Date()]
         );
 
         const [res5] = await db.query(
@@ -454,12 +455,13 @@ export const validateMissionStudent = async (req, res) => {
         // Crée la notification pour l'entreprise
         await db.query(
           `INSERT INTO notifications (userId, type, missionId, companyId, \`read\`, createdAt, message)
-           VALUES (?, ?, ?, ?, 0, NOW(), ?)`,
+           VALUES (?, ?, ?, ?, 0, ?, ?)`,
           [
             companyUserId,
             'mission_validated_by_student',
             missionId,
             appRows[0].companyId,
+            new Date(),
             "L'étudiant a validé la mission. Vous pouvez la clôturer si ce n'est pas déjà fait."
           ]
         );
@@ -500,8 +502,8 @@ export const validateMissionStudent = async (req, res) => {
         );
 
         const [res2] = await db.query(
-          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'release', ?, ?, ?, NOW())",
-          [studentUserId, amount, missionId, `Libération du paiement mission terminée - ${missionTitle}`]
+          "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'release', ?, ?, ?, ?)",
+          [studentUserId, amount, missionId, `Libération du paiement mission terminée - ${missionTitle}`, new Date()]
         );
 
         // Débiter le pending de la company
@@ -515,8 +517,8 @@ export const validateMissionStudent = async (req, res) => {
           );
 
           const [res4] = await db.query(
-            "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'release', ?, ?, ?, NOW())",
-            [iduser, amount, missionId, `Libération du paiement mission terminée - ${missionTitle}`]
+            "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'release', ?, ?, ?, ?)",
+            [iduser, amount, missionId, `Libération du paiement mission terminée - ${missionTitle}`, new Date()]
           );
 
           const [res5] = await db.query(

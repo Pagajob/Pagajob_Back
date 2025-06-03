@@ -95,8 +95,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       );
       // (Optionnel) Historique
       await db.query(
-        "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'credit', ?, ?, 'Paiement de la mission (90% de la valeur de la mission)', NOW())",
-        [iduser, amountToAdd, tempMissionId]
+        "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'credit', ?, ?, 'Paiement de la mission (90% de la valeur de la mission)', ?)",
+        [iduser, amountToAdd, tempMissionId, new Date()]
       );
     }
   }

@@ -94,8 +94,8 @@ export const orderGiftCard = async (req, res) => {
         [amount, userId]
       );
       await db.query(
-        "INSERT INTO wallet_transactions (walletId, type, amount, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'giftcard', ?, ?, NOW())",
-        [userId, amount, description]
+        "INSERT INTO wallet_transactions (walletId, type, amount, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'giftcard', ?, ?, ?)",
+        [userId, amount, description, new Date()]
       );
     }
 

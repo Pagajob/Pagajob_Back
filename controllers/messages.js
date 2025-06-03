@@ -18,8 +18,8 @@ export const sendMessage = async (req, res) => {
   try {
     // 1. Enregistre le message
     await db.query(
-      "INSERT INTO messages (conversationId, senderId, recipientId, text, dateSend, `read`) VALUES (?, ?, ?, ?, NOW(), 0)",
-      [conversationId, senderId, recipientId, text]
+      "INSERT INTO messages (conversationId, senderId, recipientId, text, dateSend, `read`) VALUES (?, ?, ?, ?, ?, 0)",
+      [conversationId, senderId, recipientId, text, new Date()]
     );
 
     // 2. Récupère le nom de l'expéditeur
@@ -34,12 +34,13 @@ export const sendMessage = async (req, res) => {
     // 3. Crée la notification pour le destinataire
     await db.query(
       `INSERT INTO notifications (userId, type, message, conversationId, createdAt, \`read\`)
-       VALUES (?, ?, ?, ?, NOW(), 0)`,
+       VALUES (?, ?, ?, ?, ?, 0)`,
       [
         recipientId,
         'message',
         `${senderName} vous a envoyé un message !`,
-        conversationId
+        conversationId,
+        new Date()
       ]
     );
 

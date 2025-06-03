@@ -77,8 +77,8 @@ export const register = async (req, res) => {
 
     // Crée le wallet à 0 pour ce user
     await db.query(
-      "INSERT INTO wallets (userId, balance, updateAt) VALUES (?, 0, NOW())",
-      [userId]
+      "INSERT INTO wallets (userId, balance, updateAt) VALUES (?, 0, ?)",
+      [userId, new Date()]
     );
     console.log("Wallet created for user:", userId);
 

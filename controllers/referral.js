@@ -102,8 +102,8 @@ export async function handleReferralCommission({ referredBy, userId, refTier, se
       const description = `Parrainage : abonnement de ${filleulName} (id:${userId})`;
 
       await db.query(
-        "INSERT INTO wallet_transactions (walletId, type, amount, description, createdAt) VALUES (?, 'referral', ?, ?, NOW())",
-        [walletId, commission, description]
+        "INSERT INTO wallet_transactions (walletId, type, amount, description, createdAt) VALUES (?, 'referral', ?, ?, ?)",
+        [walletId, commission, description, new Date()]
       );
       await db.query('UPDATE wallets SET balance = balance + ? WHERE id = ?', [commission, walletId]);
       await db.query(

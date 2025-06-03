@@ -8,7 +8,6 @@ export const db = mysql.createPool({
   user: process.env.DB_USER_PROD,
   password: process.env.DB_PASSWORD_PROD,
   database: process.env.DB_NAME_PROD,
-  timezone: process.env.DB_TIMEZONE,
 });
 
 // teste la connexion :

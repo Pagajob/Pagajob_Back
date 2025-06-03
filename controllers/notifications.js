@@ -13,8 +13,8 @@ export const createNotification = async (req, res) => {
   try {
     await db.query(
       `INSERT INTO notifications (userId, type, applicationId, missionId, companyId, \`read\`, createdAt)
-       VALUES (?, ?, ?, ?, ?, ?, NOW())`,
-      [userId, type, applicationId, missionId, companyId, read]
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [userId, type, applicationId, missionId, companyId, read, new Date()]
     );
     res.status(201).json({ success: true });
   } catch (err) {

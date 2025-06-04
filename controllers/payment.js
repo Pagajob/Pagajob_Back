@@ -53,38 +53,68 @@ export const setPayment = async (req, res) => {
   const { priceId } = req.body;
   const userId = req.userId;
 
+  // Liste des priceId du moins cher au plus cher
+  const priceOrder = [
+    'price_1RIWFnIvfEt7sDt4rIeqm0Kk', // Free
+    'price_1RLxVcIiItaN4R7RHNQF98Rg', // Boost
+    'price_1RLxVlIiItaN4R7RSw6U0E4G', // Elite
+  ];
+
   if (!priceId) {
     return res.status(400).json({ error: "❌ Price ID manquant dans la requête" });
   }
 
   // Vérifie si l'utilisateur a déjà un abonnement actif
   const [rows] = await db.query('SELECT subscriptionId FROM users WHERE id = ?', [userId]);
-  if (rows.length && rows[0].subscriptionId) {
-    // Annule l'ancien abonnement Stripe
-    await stripe.subscriptions.cancel(rows[0].subscriptionId);
-  }
+  const hasActiveSubscription = rows.length && rows[0].subscriptionId;
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription', 
-      payment_method_types: ['card'], 
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: `${FRONTEND_URL}/subscription/success`,
-      cancel_url: `${FRONTEND_URL}/subscription/cancel`,
-      metadata: {
-        userId: req.userId, 
-        priceId: req.body.priceId
-      }
-    });
+    if (hasActiveSubscription) {
+      // Récupère l'abonnement Stripe
+      const subscription = await stripe.subscriptions.retrieve(rows[0].subscriptionId);
+      const subscriptionItemId = subscription.items.data[0].id;
+      const currentPriceId = subscription.items.data[0].price.id;
 
-    res.status(200).json({ url: session.url }); 
+      if (currentPriceId === priceId) {
+        return res.status(400).json({ error: "Vous avez déjà cet abonnement." });
+      }
+
+      // Détermine si c'est un upgrade ou un downgrade
+      const isUpgrade = priceOrder.indexOf(priceId) > priceOrder.indexOf(currentPriceId);
+
+      // Met à jour l'abonnement Stripe
+      await stripe.subscriptions.update(subscription.id, {
+        items: [{
+          id: subscriptionItemId,
+          price: priceId,
+        }],
+        proration_behavior: isUpgrade ? 'create_prorations' : 'none',
+      });
+
+      return res.status(200).json({ message: "Abonnement mis à jour !" });
+    } else {
+      // Pas d'abonnement actif, crée une session Checkout
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        success_url: `${FRONTEND_URL}/subscription/success`,
+        cancel_url: `${FRONTEND_URL}/subscription/cancel`,
+        metadata: {
+          userId: req.userId,
+          priceId: req.body.priceId
+        }
+      });
+
+      return res.status(200).json({ url: session.url });
+    }
   } catch (err) {
-    res.status(500).json({ error: "Erreur lors de la création de la session Stripe" });
+    res.status(500).json({ error: "Erreur lors de la gestion de l'abonnement Stripe" });
   }
 };
 

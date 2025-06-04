@@ -92,17 +92,23 @@ export const setPayment = async (req, res) => {
       });
 
       if (isUpgrade) {
-        // Récupère la dernière facture générée
+        // Récupère la dernière facture générée pour ce subscription
         const invoices = await stripe.invoices.list({
           subscription: subscription.id,
           limit: 1,
         });
-        const invoice = invoices.data[0];
+        let invoice = invoices.data[0];
+
+        // Si la facture est en draft, il faut la finaliser
+        if (invoice && invoice.status === 'draft') {
+          invoice = await stripe.invoices.finalizeInvoice(invoice.id);
+        }
+
         if (invoice && invoice.status === 'open' && invoice.hosted_invoice_url) {
-          // Redirige l'utilisateur vers la page de paiement de la facture du prorata
+          // Renvoie l'URL de paiement de la facture du prorata
           return res.status(200).json({ url: invoice.hosted_invoice_url });
         }
-        // Sinon, recharge la page comme avant
+        // Si pas de facture à payer, recharge la page comme avant
         return res.status(200).json({ message: "Abonnement mis à jour !" });
       }
 

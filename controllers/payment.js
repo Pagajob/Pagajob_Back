@@ -91,6 +91,21 @@ export const setPayment = async (req, res) => {
         proration_behavior: isUpgrade ? 'create_prorations' : 'none',
       });
 
+      if (isUpgrade) {
+        // Récupère la dernière facture générée
+        const invoices = await stripe.invoices.list({
+          subscription: subscription.id,
+          limit: 1,
+        });
+        const invoice = invoices.data[0];
+        if (invoice && invoice.status === 'open' && invoice.hosted_invoice_url) {
+          // Redirige l'utilisateur vers la page de paiement de la facture du prorata
+          return res.status(200).json({ url: invoice.hosted_invoice_url });
+        }
+        // Sinon, recharge la page comme avant
+        return res.status(200).json({ message: "Abonnement mis à jour !" });
+      }
+
       return res.status(200).json({ message: "Abonnement mis à jour !" });
     } else {
       // Pas d'abonnement actif, crée une session Checkout

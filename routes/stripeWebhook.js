@@ -64,6 +64,20 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     }
   }
 
+  if (event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object;
+    const priceId = subscription.items.data[0].price.id;
+    const subscriptionId = subscription.id;
+
+    // Récupère l'userId via la BDD (en cherchant subscriptionId)
+    const [rows] = await db.query('SELECT id FROM users WHERE subscriptionId = ?', [subscriptionId]);
+    if (rows.length) {
+      const userId = rows[0].id;
+      // Mets à jour le tier en BDD selon le nouveau priceId
+      await updateUserSubscription(userId, priceId, subscriptionId);
+    }
+  }
+
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object;
     const tempMissionId = paymentIntent.metadata.tempMissionId;

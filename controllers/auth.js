@@ -169,3 +169,16 @@ export const logout = async (req, res) => {
         secure: true,
     }).status(200).json("Déconnecté avec succès");
 }
+
+export const getCurrentUser = async (req, res) => {
+  const token = req.cookies.access_token;
+  if (!token) return res.status(401).json({ error: "Non authentifié" });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const [[user]] = await db.query("SELECT id, firstName, lastName, email, role, subscriptionTier FROM users WHERE id = ?", [decoded.id]);
+    if (!user) return res.status(404).json({ error: "Utilisateur non trouvé" });
+    res.json(user);
+  } catch (err) {
+    res.status(401).json({ error: "Token invalide" });
+  }
+};

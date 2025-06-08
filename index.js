@@ -55,12 +55,14 @@ const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.post('/api/missions/uploadFile', upload.single('file'), uploadMissionFile);
 
-// a placer avant d'utiliser express.json() et cookieParser()
-app.use('/api/stripe', stripeWebhookRoutes);
-
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use('/uploads', express.static(...));
+app.post('/api/missions/uploadFile', ...);
+
+app.use('/api/stripe', stripeWebhookRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

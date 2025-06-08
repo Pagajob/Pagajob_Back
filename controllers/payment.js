@@ -56,8 +56,8 @@ export const setPayment = async (req, res) => {
   // Liste des priceId du moins cher au plus cher
   const priceOrder = [
     'price_1RIWFnIvfEt7sDt4rIeqm0Kk', // Free
-    'price_1RLxVcIiItaN4R7RHNQF98Rg', // Boost
-    'price_1RLxVlIiItaN4R7RSw6U0E4G', // Elite
+    'price_1RJyD4IobxwiEFS3v9BmlSu3', // Boost
+    'price_1RJyDaIobxwiEFS36lrAIFnI', // Elite
   ];
 
   if (!priceId) {

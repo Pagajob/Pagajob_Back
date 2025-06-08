@@ -41,8 +41,8 @@ export const setUser = async (req, res) => {
 export const updateUserSubscription = async (userId, priceId, subscriptionId) => {
   // Mappe priceId vers le nom du tier
   let subscriptionTier = 'free';
-  if (priceId === 'price_1ROhcAIiItaN4R7RYMQ62BAa') subscriptionTier = 'boost';
-  if (priceId === 'price_1ROhcQIiItaN4R7R37SHV89v') subscriptionTier = 'elite';
+  if (priceId === 'price_1RJyD4IobxwiEFS3v9BmlSu3') subscriptionTier = 'boost';
+  if (priceId === 'price_1RJyDaIobxwiEFS36lrAIFnI') subscriptionTier = 'elite';
 
   // Mets à jour la colonne subscriptionTier dans la table users
   await db.query(

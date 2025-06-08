@@ -50,6 +50,7 @@ app.use(cors({
   credentials: true,
 }));
 
+app.use('/api/stripe', stripeWebhookRoutes);
 
 
 app.use(express.json());
@@ -59,7 +60,6 @@ const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.post('/api/missions/uploadFile', upload.single('file'), uploadMissionFile);
 
-app.use('/api/stripe', stripeWebhookRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

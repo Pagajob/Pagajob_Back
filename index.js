@@ -50,17 +50,14 @@ app.use(cors({
   credentials: true,
 }));
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.post('/api/missions/uploadFile', upload.single('file'), uploadMissionFile);
 
 
 app.use(express.json());
 app.use(cookieParser());
-
-app.use('/uploads', express.static(...));
-app.post('/api/missions/uploadFile', ...);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.post('/api/missions/uploadFile', upload.single('file'), uploadMissionFile);
 
 app.use('/api/stripe', stripeWebhookRoutes);
 

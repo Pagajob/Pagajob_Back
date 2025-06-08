@@ -34,7 +34,8 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 const app = express();
 const allowedOrigins = [
   "https://pagajob.com",
-  "https://www.pagajob.com"
+  "https://www.pagajob.com",
+  "https://api.pagajob.com" 
 ];
 
 app.use(cors({

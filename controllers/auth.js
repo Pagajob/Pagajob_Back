@@ -149,7 +149,8 @@ export const login = async (req, res) => {
         res.cookie("access_token", token, {
           httpOnly: true,
           secure: true,
-          sameSite: "None"
+          sameSite: "None",
+          domain: ".pagajob.com"
         });
 
         console.log("Login success for user:", user.id);

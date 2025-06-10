@@ -44,7 +44,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function(origin, callback) {
-    console.log('CORS origin:', origin);
     // Autorise les requêtes sans origin (ex: Postman) ou si l'origine est dans la liste
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -92,4 +91,4 @@ setInterval(() => {
   db.query('SELECT 1')
     .then(() => console.log('Ping MySQL OK'))
     .catch(err => console.error('Ping MySQL failed:', err));
-}, 10 * 60 * 1000); // 10 minutes
+}, 300 * 1000); // 5 minutes

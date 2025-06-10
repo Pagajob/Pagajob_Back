@@ -35,11 +35,16 @@ const app = express();
 const allowedOrigins = [
   "https://pagajob.com",
   "https://www.pagajob.com",
-  "https://api.pagajob.com" 
+  "https://api.pagajob.com",
+  "https://l.instagram.com",
+  "https://lm.instagram.com",
+  "https://web.facebook.com",
+  "https://t.co",
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
+    console.log('CORS origin:', origin);
     // Autorise les requêtes sans origin (ex: Postman) ou si l'origine est dans la liste
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);

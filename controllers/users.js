@@ -1,4 +1,5 @@
 import { db } from '../connect.js';
+import bcrypt from "bcryptjs";
 
 export const getUser = async (req, res) => {   
     try {
@@ -88,5 +89,35 @@ export const getUserWithLogo = async (req, res) => {
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json(err);
+  }
+};
+
+export const changePassword = async (req, res) => {
+  const { userId } = req.body; 
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    // Récupère l'utilisateur
+    const [users] = await db.query("SELECT password FROM users WHERE id = ?", [userId]);
+    if (!users.length) return res.status(404).json({ error: "Utilisateur non trouvé" });
+
+    const user = users[0];
+
+    // Vérifie l'ancien mot de passe
+    const isPasswordCorrect = bcrypt.compareSync(oldPassword, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ error: "Ancien mot de passe incorrect" });
+    }
+
+    // Hash le nouveau mot de passe
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+    // Mets à jour le mot de passe
+    await db.query("UPDATE users SET password = ? WHERE id = ?", [hashedPassword, userId]);
+
+    res.json({ success: true, message: "Mot de passe modifié avec succès" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur lors du changement de mot de passe" });
   }
 };

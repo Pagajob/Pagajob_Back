@@ -1,5 +1,5 @@
 import express from 'express';
-import { getUser, setUser, getUserWithLogo } from '../controllers/users.js';
+import { getUser, setUser, getUserWithLogo, changePassword } from '../controllers/users.js';
 import { upload } from '../middlewares/upload.js';
 import dotenv from 'dotenv';
 
@@ -12,6 +12,7 @@ const BASE_URL = process.env.BACK_URL || 'http://localhost:8800';
 router.get('/find/:userId', getUser);
 router.post('/setUser', setUser);
 router.get('/findWithLogo/:userId', getUserWithLogo);
+router.post('/change-password', changePassword);
 
 // Upload avatar étudiant
 router.post('/avatar', upload.single('avatar'), (req, res) => {

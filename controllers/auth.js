@@ -91,12 +91,15 @@ export const register = async (req, res) => {
       );
     }
 
-    // Envoi de l'email de bienvenue
-    await sendMail({
-      to: req.body.email,
-      subject: "Bienvenue sur Pagajob !",
-      html: `<h1>Bienvenue ${req.body.firstName} !</h1><p>Merci de t'être inscrit sur Pagajob.</p>`
-    });
+    try {
+      await sendMail({
+        to: req.body.email,
+        subject: "Bienvenue sur Pagajob !",
+        html: `<h1>Bienvenue ${req.body.firstName} !</h1><p>Merci de t'être inscrit sur Pagajob.</p>`
+      });
+    } catch (mailError) {
+      console.error("Erreur lors de l'envoi du mail :", mailError);
+    }
 
     return res.status(200).json("User has been created.");
   } catch (err) {

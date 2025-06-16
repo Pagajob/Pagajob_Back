@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import dotenv from 'dotenv';
-import { sendMail } from "../utils/mailer.js";
+import { sendMail } from "./utils.js";
 dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -90,7 +90,7 @@ export const register = async (req, res) => {
         [userId]
       );
     }
-    
+
     // Envoi de l'email de bienvenue
     await sendMail({
       to: req.body.email,

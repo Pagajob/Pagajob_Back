@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import dotenv from 'dotenv';
+import { sendMail } from "../utils/mailer.js";
 dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -89,6 +90,13 @@ export const register = async (req, res) => {
         [userId]
       );
     }
+    
+    // Envoi de l'email de bienvenue
+    await sendMail({
+      to: req.body.email,
+      subject: "Bienvenue sur Pagajob !",
+      html: `<h1>Bienvenue ${req.body.firstName} !</h1><p>Merci de t'être inscrit sur Pagajob.</p>`
+    });
 
     return res.status(200).json("User has been created.");
   } catch (err) {

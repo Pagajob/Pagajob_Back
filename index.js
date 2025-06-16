@@ -17,6 +17,7 @@ import referralRoutes from './routes/referral.js';
 import xoxodayRoutes from './routes/xoxoday.js';
 import studentsRoutes from './routes/students.js';
 import jackpotRoutes from './routes/jackpot.js';
+import utilsRoutes from './routes/utils.js';
 
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -80,6 +81,7 @@ app.use('/api/referral', referralRoutes);
 app.use('/api/xoxoday', xoxodayRoutes);
 app.use('/api/students', studentsRoutes);
 app.use('/api/jackpot', jackpotRoutes);
+app.use('/api/utils', utilsRoutes);
 
 const port = process.env.PORT || 8800;
 app.listen(port, () => {

@@ -3,6 +3,8 @@ import { transporter } from '../controllers/utils.js';
 
 const router = express.Router();
 
-router.get('/mailer', transporter);
+router.get('/mailer', (req, res) => {
+  res.json({ ok: !!transporter });
+});
 
 export default router;

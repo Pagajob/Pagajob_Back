@@ -208,6 +208,9 @@ export const resetPassword = async (req, res) => {
 
 export const changePasswordWithToken = async (req, res) => {
   const { token, newPassword } = req.body;
+  const [nowRows] = await db.query("SELECT NOW() as now");
+  console.log("Heure SQL NOW() :", nowRows[0].now);
+  console.log("Token reçu:", token);
   try {
     // Cherche l'utilisateur avec ce resetToken et une date de validité
     const [[user]] = await db.query(

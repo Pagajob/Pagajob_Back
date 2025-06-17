@@ -7,7 +7,7 @@ router.post('/register', register);
 router.post('/login', login); 
 router.post('/logout', logout); 
 router.get('/me', getCurrentUser);
-router.get('/resetPassword', resetPassword);
-router.get('/changePasswordWithToken', changePasswordWithToken);
+router.post('/resetPassword', resetPassword);
+router.post('/changePasswordWithToken', changePasswordWithToken);
 
 export default router;

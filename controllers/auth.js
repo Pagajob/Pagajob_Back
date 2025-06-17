@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import dotenv from 'dotenv';
 import { sendMail } from "./utils.js";
+import { welcomeMail } from "../mailTemplates/welcome.js";
 dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -91,15 +92,13 @@ export const register = async (req, res) => {
       );
     }
 
-    try {
-      await sendMail({
-        to: req.body.email,
-        subject: "Bienvenue sur Pagajob !",
-        html: `<h1>Bienvenue ${req.body.firstName} !</h1><p>Merci de t'être inscrit sur Pagajob.</p>`
-      });
-    } catch (mailError) {
-      console.error("Erreur lors de l'envoi du mail :", mailError);
-    }
+    // Envoi de l'email de bienvenue
+    const mail = welcomeMail({ firstName: req.body.firstName });
+    await sendMail({
+      to: req.body.email,
+      subject: mail.subject,
+      html: mail.html
+    });
 
     return res.status(200).json("User has been created.");
   } catch (err) {
@@ -176,5 +175,53 @@ export const getCurrentUser = async (req, res) => {
     res.json(user);
   } catch (err) {
     res.status(401).json({ error: "Token invalide" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email manquant" });
+
+  try {
+    const [[user]] = await db.query("SELECT id FROM users WHERE email = ?", [email]);
+    if (!user) return res.status(404).json({ error: "Utilisateur non trouvé" });
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetExpires = new Date(Date.now() + 3600000); // 1 heure
+
+    await db.query("UPDATE users SET resetToken = ?, resetExpires = ? WHERE id = ?", [resetToken, resetExpires, user.id]);
+
+    // Envoi de l'email de réinitialisation
+    const resetLink = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
+    await sendMail({
+      to: email,
+      subject: "Réinitialisation de votre mot de passe",
+      html: `<p>Veuillez cliquer sur le lien suivant pour réinitialiser votre mot de passe : <a href="${resetLink}">Réinitialiser le mot de passe</a></p>`
+    });
+
+    res.status(200).json({ message: "Email de réinitialisation envoyé" });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(500).json({ error: "Erreur lors de la réinitialisation du mot de passe" });
+  }
+}
+
+export const changePasswordWithToken = async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    // Vérifie et décode le token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    // Hash le nouveau mot de passe
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+    // Mets à jour le mot de passe
+    await db.query("UPDATE users SET password = ? WHERE id = ?", [hashedPassword, userId]);
+
+    res.json({ success: true, message: "Mot de passe réinitialisé avec succès" });
+  } catch (err) {
+    res.status(400).json({ error: "Lien invalide ou expiré" });
   }
 };

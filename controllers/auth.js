@@ -209,19 +209,27 @@ export const resetPassword = async (req, res) => {
 export const changePasswordWithToken = async (req, res) => {
   const { token, newPassword } = req.body;
   try {
-    // Vérifie et décode le token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    // Cherche l'utilisateur avec ce resetToken et une date de validité
+    const [[user]] = await db.query(
+      "SELECT id FROM users WHERE resetToken = ? AND resetExpires > NOW()",
+      [token]
+    );
+    if (!user) {
+      return res.status(400).json({ error: "Lien invalide ou expiré" });
+    }
 
     // Hash le nouveau mot de passe
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(newPassword, salt);
 
-    // Mets à jour le mot de passe
-    await db.query("UPDATE users SET password = ? WHERE id = ?", [hashedPassword, userId]);
+    // Mets à jour le mot de passe et supprime le token de reset
+    await db.query(
+      "UPDATE users SET password = ?, resetToken = NULL, resetExpires = NULL WHERE id = ?",
+      [hashedPassword, user.id]
+    );
 
     res.json({ success: true, message: "Mot de passe réinitialisé avec succès" });
   } catch (err) {
-    res.status(400).json({ error: "Lien invalide ou expiré" });
+    res.status(500).json({ error: "Erreur lors de la réinitialisation du mot de passe" });
   }
 };

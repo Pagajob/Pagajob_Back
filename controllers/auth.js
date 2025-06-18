@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { sendMail } from "./utils.js";
 import { welcomeMail } from "../mailTemplates/welcome.js";
 import { confirmationMail } from "../mailTemplates/confirmationMail.js";
+import { mailVerifie } from "../mailTemplates/mailVerifie.js";
 dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -241,13 +242,20 @@ export const changePasswordWithToken = async (req, res) => {
 export const confirmEmail = async (req, res) => {
   const { token } = req.query;
 
-  const [[user]] = await db.query("SELECT id FROM users WHERE emailToken = ?", [token]);
+  const [[user]] = await db.query("SELECT id, email, firstName FROM users WHERE emailToken = ?", [token]);
 
   if (!user) {
     return res.status(400).json({ error: "Lien invalide ou expiré" });
   }
 
   await db.query("UPDATE users SET isVerified = 1, emailToken = NULL WHERE id = ?", [user.id]);
+
+  const mail = mailVerifie({ firstName: user.firstName, confirmLink });
+  await sendMail({
+    to: user.email,
+    subject: mail.subject,
+    html: mail.html
+  });
 
   res.json({ success: true, message: "Email confirmé !" });
 };
@@ -266,7 +274,7 @@ export const resendConfirmation = async (req, res) => {
   const emailToken = crypto.randomBytes(32).toString("hex");
   await db.query("UPDATE users SET emailToken = ? WHERE id = ?", [emailToken, user.id]);
   const confirmLink = `${FRONTEND_URL}/confirm-email?token=${emailToken}`;
-  const mail = confirmationMail({ confirmLink });
+  const mail = confirmationMail({ firstName: user.firstName, confirmLink });
   await sendMail({
     to: user.email,
     subject: mail.subject,

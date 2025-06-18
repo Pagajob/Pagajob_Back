@@ -187,9 +187,8 @@ export const resetPassword = async (req, res) => {
     if (!user) return res.status(404).json({ error: "Utilisateur non trouvé" });
 
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetExpires = new Date(Date.now() + 3600000); // 1 heure
 
-    await db.query("UPDATE users SET resetToken = ?, resetExpires = ? WHERE id = ?", [resetToken, resetExpires, user.id]);
+    await db.query("UPDATE users SET resetToken = ?, resetExpires = (NOW() + INTERVAL 1 HOUR) WHERE id = ?", [resetToken, user.id]);
 
     // Envoi de l'email de réinitialisation
     const resetLink = `${FRONTEND_URL}/reset-password?token=${resetToken}`;

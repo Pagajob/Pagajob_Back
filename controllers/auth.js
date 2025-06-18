@@ -248,19 +248,28 @@ export const confirmEmail = async (req, res) => {
 };
 
 export const resendConfirmation = async (req, res) => {
-  const { email } = req.body;
-  const [[user]] = await db.query("SELECT id, isVerified FROM users WHERE email = ?", [email]);
-  if (!user) return res.status(404).json({ error: "Utilisateur non trouvé" });
-  if (user.isVerified) return res.status(400).json({ error: "Email déjà vérifié" });
+  const { idUser } = req.body;
+  console.log("Requête reçue pour idUser :", idUser);
+
+  const [[user]] = await db.query("SELECT id, email, firstName, isVerified FROM users WHERE id = ?", [idUser]);
+  if (!user) {
+    console.log("Utilisateur non trouvé");
+    return res.status(404).json({ error: "Utilisateur non trouvé" });
+  }
+  if (user.isVerified) {
+    console.log("Déjà vérifié");
+    return res.status(400).json({ error: "Email déjà vérifié" });
+  }
 
   const emailToken = crypto.randomBytes(32).toString("hex");
   await db.query("UPDATE users SET emailToken = ? WHERE id = ?", [emailToken, user.id]);
   const confirmLink = `${FRONTEND_URL}/confirm-email?token=${emailToken}`;
   const mail = confirmEmail({ confirmLink });
   await sendMail({
-    to: email,
+    to: user.email,
     subject: mail.subject,
     html: mail.html
   });
+  console.log("Lien de confirmation envoyé à :", user.email);
   res.json({ message: "Lien de confirmation envoyé" });
 };

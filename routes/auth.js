@@ -10,6 +10,6 @@ router.get('/me', getCurrentUser);
 router.post('/resetPassword', resetPassword);
 router.post('/changePasswordWithToken', changePasswordWithToken);
 router.post('/confirm-email', confirmEmail);
-router.post("/resend-confirmation", resendConfirmation);
+router.post("/resend-verification-email", resendConfirmation);
 
 export default router;

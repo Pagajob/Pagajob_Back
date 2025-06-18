@@ -240,24 +240,30 @@ export const changePasswordWithToken = async (req, res) => {
 
 export const confirmEmail = async (req, res) => {
   const { token } = req.query;
+  console.log("Token reçu pour confirmation :", token);
+
   const [[user]] = await db.query("SELECT id FROM users WHERE emailToken = ?", [token]);
-  if (!user) return res.status(400).json({ error: "Lien invalide ou expiré" });
+  console.log("Résultat SQL pour ce token :", user);
+
+  if (!user) {
+    console.log("Aucun utilisateur trouvé pour ce token !");
+    return res.status(400).json({ error: "Lien invalide ou expiré" });
+  }
 
   await db.query("UPDATE users SET isVerified = 1, emailToken = NULL WHERE id = ?", [user.id]);
+  console.log("Utilisateur confirmé, id :", user.id);
+
   res.json({ success: true, message: "Email confirmé !" });
 };
 
 export const resendConfirmation = async (req, res) => {
   const { idUser } = req.body;
-  console.log("Requête reçue pour idUser :", idUser);
 
   const [[user]] = await db.query("SELECT id, email, firstName, isVerified FROM users WHERE id = ?", [idUser]);
   if (!user) {
-    console.log("Utilisateur non trouvé");
     return res.status(404).json({ error: "Utilisateur non trouvé" });
   }
   if (user.isVerified) {
-    console.log("Déjà vérifié");
     return res.status(400).json({ error: "Email déjà vérifié" });
   }
 
@@ -270,6 +276,5 @@ export const resendConfirmation = async (req, res) => {
     subject: mail.subject,
     html: mail.html
   });
-  console.log("Lien de confirmation envoyé à :", user.email);
   res.json({ message: "Lien de confirmation envoyé" });
 };

@@ -240,18 +240,14 @@ export const changePasswordWithToken = async (req, res) => {
 
 export const confirmEmail = async (req, res) => {
   const { token } = req.query;
-  console.log("Token reçu pour confirmation :", token);
 
   const [[user]] = await db.query("SELECT id FROM users WHERE emailToken = ?", [token]);
-  console.log("Résultat SQL pour ce token :", user);
 
   if (!user) {
-    console.log("Aucun utilisateur trouvé pour ce token !");
     return res.status(400).json({ error: "Lien invalide ou expiré" });
   }
 
   await db.query("UPDATE users SET isVerified = 1, emailToken = NULL WHERE id = ?", [user.id]);
-  console.log("Utilisateur confirmé, id :", user.id);
 
   res.json({ success: true, message: "Email confirmé !" });
 };

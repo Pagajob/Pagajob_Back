@@ -264,7 +264,7 @@ export const resendConfirmation = async (req, res) => {
   const emailToken = crypto.randomBytes(32).toString("hex");
   await db.query("UPDATE users SET emailToken = ? WHERE id = ?", [emailToken, user.id]);
   const confirmLink = `${FRONTEND_URL}/confirm-email?token=${emailToken}`;
-  const mail = confirmEmail({ confirmLink });
+  const mail = confirmationMail({ confirmLink });
   await sendMail({
     to: user.email,
     subject: mail.subject,

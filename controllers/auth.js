@@ -5,6 +5,7 @@ import crypto from "crypto";
 import dotenv from 'dotenv';
 import { sendMail } from "./utils.js";
 import { welcomeMail } from "../mailTemplates/welcome.js";
+import { confirmationMail } from "../mailTemplates/confirmationMail.js";
 dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -92,8 +93,11 @@ export const register = async (req, res) => {
       );
     }
 
-    // Envoi de l'email de bienvenue
-    const mail = welcomeMail({ firstName: req.body.firstName });
+    const emailToken = crypto.randomBytes(32).toString("hex");
+    await db.query("UPDATE users SET emailToken = ? WHERE id = ?", [emailToken, userId]);
+
+    const confirmLink = `${FRONTEND_URL}/confirm-email?token=${emailToken}`;
+    const mail = welcomeMail({ firstName: req.body.firstName, confirmLink });
     await sendMail({
       to: req.body.email,
       subject: mail.subject,
@@ -208,8 +212,6 @@ export const resetPassword = async (req, res) => {
 export const changePasswordWithToken = async (req, res) => {
   const { token, newPassword } = req.body;
   const [nowRows] = await db.query("SELECT NOW() as now");
-  console.log("Heure SQL NOW() :", nowRows[0].now);
-  console.log("Token reçu:", token);
   try {
     // Cherche l'utilisateur avec ce resetToken et une date de validité
     const [[user]] = await db.query(
@@ -234,4 +236,31 @@ export const changePasswordWithToken = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Erreur lors de la réinitialisation du mot de passe" });
   }
+};
+
+export const confirmEmail = async (req, res) => {
+  const { token } = req.query;
+  const [[user]] = await db.query("SELECT id FROM users WHERE emailToken = ?", [token]);
+  if (!user) return res.status(400).json({ error: "Lien invalide ou expiré" });
+
+  await db.query("UPDATE users SET isVerified = 1, emailToken = NULL WHERE id = ?", [user.id]);
+  res.json({ success: true, message: "Email confirmé !" });
+};
+
+export const resendConfirmation = async (req, res) => {
+  const { email } = req.body;
+  const [[user]] = await db.query("SELECT id, isVerified FROM users WHERE email = ?", [email]);
+  if (!user) return res.status(404).json({ error: "Utilisateur non trouvé" });
+  if (user.isVerified) return res.status(400).json({ error: "Email déjà vérifié" });
+
+  const emailToken = crypto.randomBytes(32).toString("hex");
+  await db.query("UPDATE users SET emailToken = ? WHERE id = ?", [emailToken, user.id]);
+  const confirmLink = `${FRONTEND_URL}/confirm-email?token=${emailToken}`;
+  const mail = confirmEmail({ confirmLink });
+  await sendMail({
+    to: email,
+    subject: mail.subject,
+    html: mail.html
+  });
+  res.json({ message: "Lien de confirmation envoyé" });
 };

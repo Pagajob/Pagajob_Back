@@ -1,5 +1,10 @@
 import { db } from '../connect.js';
 import bcrypt from "bcryptjs";
+import { abonnementPaid } from "../mailTemplates/abonnementPaid.js";
+import { abonnementExpire } from "../mailTemplates/abonnementExpire.js";
+import { sendMail } from "./utils.js";
+
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 export const getUser = async (req, res) => {   
     try {
@@ -50,6 +55,35 @@ export const updateUserSubscription = async (userId, priceId, subscriptionId) =>
     'UPDATE users SET subscriptionTier = ?, subscriptionId = ? WHERE id = ?',
     [subscriptionTier, subscriptionId, userId]
   );
+};
+
+export const sendMailUserSubscription = async (userId, priceId) => {
+  // Mappe priceId vers le nom du tier
+  let subscriptionTier = 'free';
+  let percentage = '0%';
+  if (priceId === 'price_1RJyD4IobxwiEFS3v9BmlSu3') subscriptionTier = 'boost';
+  if (priceId === 'price_1RJyDaIobxwiEFS36lrAIFnI') subscriptionTier = 'elite';
+  if (subscriptionTier === 'boost') percentage = '15%'; 
+  if (subscriptionTier === 'elite') percentage = '30%';
+
+  const [[user]] = await db.query("SELECT email, firstName FROM users WHERE id = ?", [userId]);
+  
+  const mail = abonnementPaid({ firstName: user.firstName, subscriptionTier: subscriptionTier, percentage: percentage });
+  await sendMail({
+    to: user.email,
+    subject: mail.subject,
+    html: mail.html
+  });
+};
+
+export const sendMailUserSubscriptionExpire = async (email, firstName) => {
+  
+  const mail = abonnementExpire({ firstName: firstName, renewalLink: `${FRONTEND_URL}/subscriptions` });
+  await sendMail({
+    to: email,
+    subject: mail.subject,
+    html: mail.html
+  });
 };
 
 export const getUserById = async (req, res) => {

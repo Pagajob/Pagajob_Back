@@ -1,6 +1,6 @@
 import express from 'express';
 import Stripe from 'stripe';
-import { updateUserSubscription } from '../controllers/users.js';
+import { updateUserSubscription, sendMailUserSubscription } from '../controllers/users.js';
 import { db } from '../connect.js';
 import { handleReferralCommission, handleReferralBonus, handleFreeToBoost } from '../controllers/referral.js';
 
@@ -27,6 +27,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
     if (userId && priceId && subscriptionId) {
       await updateUserSubscription(userId, priceId, subscriptionId);
+      await sendMailUserSubscription(userId, priceId, subscriptionId);
 
       // --- Parrainage : versement au parrain si applicable ---
       // 1. Récupère le parrain de l'utilisateur
@@ -57,10 +58,11 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object;
     // Récupère l'userId via la BDD (en cherchant subscriptionId)
-    const [rows] = await db.query('SELECT id FROM users WHERE subscriptionId = ?', [subscription.id]);
+    const [rows] = await db.query('SELECT id, email, firstName FROM users WHERE subscriptionId = ?', [subscription.id]);
     if (rows.length) {
       const userId = rows[0].id;
       await db.query('UPDATE users SET subscriptionTier = ?, subscriptionId = NULL WHERE id = ?', ['free', userId]);
+      await sendMailUserSubscriptionExpire(rows[0].email, rows[0].firstName);
     }
   }
 

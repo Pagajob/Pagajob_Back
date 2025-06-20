@@ -1,6 +1,6 @@
 import express from 'express';
 import Stripe from 'stripe';
-import { updateUserSubscription, sendMailUserSubscription } from '../controllers/users.js';
+import { updateUserSubscription, sendMailUserSubscription, sendMailUserSubscriptionExpire } from '../controllers/users.js';
 import { db } from '../connect.js';
 import { handleReferralCommission, handleReferralBonus, handleFreeToBoost } from '../controllers/referral.js';
 

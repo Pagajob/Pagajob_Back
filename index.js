@@ -19,6 +19,8 @@ import studentsRoutes from './routes/students.js';
 import jackpotRoutes from './routes/jackpot.js';
 import utilsRoutes from './routes/utils.js';
 
+import { sendMailOfferToFreeUsers } from './taskPlanifie/sendMailOffer.js';
+
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
@@ -94,3 +96,9 @@ setInterval(() => {
     .then(() => console.log('Ping MySQL OK'))
     .catch(err => console.error('Ping MySQL failed:', err));
 }, 300 * 1000); // 5 minutes
+
+setInterval(() => {
+  sendMailOfferToFreeUsers()
+    .then(() => console.log('Offres envoyées'))
+    .catch(err => console.error('Erreur lors de l\'envoi des offres :', err));
+}, 3600 * 1000); // 1 heure

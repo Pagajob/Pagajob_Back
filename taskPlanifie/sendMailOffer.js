@@ -1,5 +1,4 @@
 import { db } from '../connect.js';
-import { createPromoCheckoutLink } from '../utils/stripe.js';
 import { sendMailoffreAbonnement } from '../controllers/senderMail.js';
 import dotenv from 'dotenv';
 import Stripe from 'stripe';

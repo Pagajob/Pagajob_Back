@@ -2,6 +2,7 @@ import { db } from "../connect.js";
 import jwt from "jsonwebtoken";
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
+import { sendMailMissionComplete } from '../controllers/senderMail.js';
 dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -525,6 +526,12 @@ export const validateMissionStudent = async (req, res) => {
             "DELETE FROM wallet_transactions WHERE missionId = ? AND type IN ('transfer_comp_stud_pend_out', 'transfer_comp_stud_pend_in')",
             [missionId]
           );
+
+          const [user] = await db.query('SELECT email, firstName FROM users WHERE id = ?', [studentUserId]);
+
+          //envoi du mail mission complete
+          await sendMailMissionComplete(user[0].email, user[0].firstName , missionTitle, amount);
+
         }
       }
     }

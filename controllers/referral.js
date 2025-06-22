@@ -1,4 +1,5 @@
 import { db } from '../connect.js';
+import { sendMailFilleulAbonnement } from '../controllers/senderMail.js';
 
 export const getReferralDashboard = async (req, res) => {
   const { userId } = req.params;
@@ -110,6 +111,8 @@ export async function handleReferralCommission({ referredBy, userId, refTier, se
         "INSERT INTO referral_earnings (referrerId, referredId, amount, subscriptionType, createdAt) VALUES (?, ?, ?, ?, NOW())",
         [referredBy, userId, commission, refTier]
       );
+      const [Parrain] = await db.query('SELECT email, firstName, referralCode  FROM users WHERE id = ?', [referredBy]);
+      await sendMailFilleulAbonnement(Parrain.email, filleulName, Parrain.firstName, commission, Parrain.referralCode);
     }
     return walletId;
   }

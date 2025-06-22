@@ -1,8 +1,9 @@
 import express from 'express';
 import Stripe from 'stripe';
-import { updateUserSubscription, sendMailUserSubscription, sendMailUserSubscriptionExpire } from '../controllers/users.js';
+import { updateUserSubscription } from '../controllers/users.js';
 import { db } from '../connect.js';
 import { handleReferralCommission, handleReferralBonus, handleFreeToBoost } from '../controllers/referral.js';
+import { sendMailUserSubscription, sendMailUserSubscriptionExpire } from '../controllers/senderMail.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);

@@ -1,6 +1,7 @@
 import { db } from "../connect.js";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
+import { sendMailNewCandidature } from '../controllers/senderMail.js';
 dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -77,7 +78,7 @@ export const applyToMission = async (req, res) => {
   try {
     // Récupère le companyId de la mission
     const [missions] = await db.query(
-      "SELECT companyId FROM missions WHERE id = ?",
+      "SELECT companyId, title  FROM missions WHERE id = ?",
       [missionId]
     );
     if (!missions.length) return res.status(404).json({ error: "Mission introuvable." });
@@ -92,7 +93,7 @@ export const applyToMission = async (req, res) => {
 
     // Récupère l'id du user entreprise (responsable)
     const [company] = await db.query(
-      "SELECT idUser FROM companies WHERE id = ?",
+      "SELECT idUser, name FROM companies WHERE id = ?",
       [companyId]
     );
     const companyUserId = company.length ? company[0].idUser : null;
@@ -118,6 +119,9 @@ export const applyToMission = async (req, res) => {
         `Un étudiant a postulé à votre mission !`
       ]
     );
+
+    // Envoie un email à l'entreprise
+    await sendMailNewCandidature(rows[0].email, company[0].name ,missions[0].title);
 
     // Après avoir inséré la candidature et récupéré applicationId, companyId, userId, missionId
     // Vérifie si la conversation existe déjà

@@ -18,6 +18,7 @@ import xoxodayRoutes from './routes/xoxoday.js';
 import studentsRoutes from './routes/students.js';
 import jackpotRoutes from './routes/jackpot.js';
 import utilsRoutes from './routes/utils.js';
+import ambassadeurRoutes from './routes/ambassadeur.js';
 
 import { sendMailOfferToFreeUsers } from './taskPlanifie/sendMailOffer.js';
 
@@ -84,6 +85,7 @@ app.use('/api/xoxoday', xoxodayRoutes);
 app.use('/api/students', studentsRoutes);
 app.use('/api/jackpot', jackpotRoutes);
 app.use('/api/utils', utilsRoutes);
+app.use('/api/ambassador', ambassadeurRoutes);
 
 const port = process.env.PORT || 8800;
 app.listen(port, () => {

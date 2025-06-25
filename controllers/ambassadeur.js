@@ -1,16 +1,15 @@
 // api/controllers/ambassador.js
 import { db } from '../connect.js';
 import { getReferralDashboard } from './referral.js';
-// ...import d'autres fonctions si besoin
 
 // Utilitaire pour récupérer les stats de parrainage SANS res.json
 async function getReferralDashboardRaw(userId) {
   // 1. Récupère le code de parrainage de l'utilisateur
   const [[user]] = await db.query(
-    "SELECT referralCode FROM users WHERE id = ?", [userId]
+    `SELECT referralCode FROM users WHERE id = ?`,
+    [userId]
   );
-  if (!user) return {};
-
+}
   // 2. Récupère la liste des filleuls
   const [referrals] = await db.query(
     `SELECT u.id, u.firstName, u.lastName, u.email, u.subscriptionTier, u.createdAt

@@ -65,7 +65,7 @@ app.use(express.json());
 app.use(cookieParser());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('/app/storage'));
 app.post('/api/missions/uploadFile', upload.single('file'), uploadMissionFile);
 
 

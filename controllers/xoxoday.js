@@ -3,7 +3,7 @@ import { db } from '../connect.js';
 
 const XOXO_CLIENT_ID = process.env.XOXO_CLIENT_ID;
 const XOXO_CLIENT_SECRET = process.env.XOXO_CLIENT_SECRET;
-const XOXO_BASE_URL = 'https://stagingaccount.xoxoday.com/chef'; 
+const XOXO_BASE_URL = 'https://canvas.xoxoday.com/chef'; 
 
 // 1. Authentification
 async function getXoxoToken() {

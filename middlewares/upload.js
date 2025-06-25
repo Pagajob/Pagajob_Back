@@ -15,7 +15,7 @@ const BASE_URL = process.env.BACK_URL || 'http://localhost:8800';
 // Configurer le dossier de destination et le nom de fichier
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads'));  // ✔️ Corrigé ici
+    cb(null, '/app/storage');
   },
   filename: (req, file, cb) => {
     cb(null, 'logo-' + Date.now() + path.extname(file.originalname));

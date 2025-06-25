@@ -9,7 +9,6 @@ async function getReferralDashboardRaw(userId) {
     `SELECT referralCode FROM users WHERE id = ?`,
     [userId]
   );
-}
   // 2. Récupère la liste des filleuls
   const [referrals] = await db.query(
     `SELECT u.id, u.firstName, u.lastName, u.email, u.subscriptionTier, u.createdAt

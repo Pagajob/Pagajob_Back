@@ -421,6 +421,37 @@ export const validateMissionCompany = async (req, res) => {
           "DELETE FROM wallet_transactions WHERE missionId = ? AND type IN ('transfer_comp_stud_pend_out', 'transfer_comp_stud_pend_in')",
           [missionId]
         );
+
+        const [user] = await db.query('SELECT email, firstName FROM users WHERE id = ?', [studentUserId]);
+
+        //envoi du mail mission complete
+        await sendMailMissionComplete(user[0].email, user[0].firstName , missionTitle, amount);
+
+        const [[student]] = await db.query('SELECT referredBy FROM users WHERE id = ?', [studentUserId]);
+        const parrainId = student?.referredBy;
+
+        if (parrainId) {
+          // 2. Récupère le walletId du parrain
+          const [[wallet]] = await db.query('SELECT id FROM wallets WHERE userId = ?', [parrainId]);
+          const walletIdParrain = wallet?.id;
+
+          if (walletIdParrain) {
+            // 3. Calcule le montant (5%)
+            const referralAmount = Number((amount * 0.05).toFixed(2));
+
+            // 4. Ajoute la transaction de parrainage
+            await db.query(
+              "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES (?, 'referralMission', ?, ?, ?, ?)",
+              [
+                walletIdParrain,
+                referralAmount,
+                missionId,
+                "5% de parrainage pour le parrain",
+                new Date()
+              ]
+            );
+          }
+        }
       }
     }
     res.status(200).json({ success: true });
@@ -531,6 +562,32 @@ export const validateMissionStudent = async (req, res) => {
 
           //envoi du mail mission complete
           await sendMailMissionComplete(user[0].email, user[0].firstName , missionTitle, amount);
+
+          const [[student]] = await db.query('SELECT referredBy FROM users WHERE id = ?', [studentUserId]);
+          const parrainId = student?.referredBy;
+
+          if (parrainId) {
+            // 2. Récupère le walletId du parrain
+            const [[wallet]] = await db.query('SELECT id FROM wallets WHERE userId = ?', [parrainId]);
+            const walletIdParrain = wallet?.id;
+
+            if (walletIdParrain) {
+              // 3. Calcule le montant (5%)
+              const referralAmount = Number((amount * 0.05).toFixed(2));
+
+              // 4. Ajoute la transaction de parrainage
+              await db.query(
+                "INSERT INTO wallet_transactions (walletId, type, amount, missionId, description, createdAt) VALUES (?, 'referralMission', ?, ?, ?, ?)",
+                [
+                  walletIdParrain,
+                  referralAmount,
+                  missionId,
+                  "5% de parrainage pour le parrain",
+                  new Date()
+                ]
+              );
+            }
+          }
 
         }
       }

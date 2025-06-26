@@ -66,11 +66,9 @@ async function getReferralDashboardRaw(userId) {
 export const getAmbassadorStats = async (req, res) => {
   try {
     const userId = req.userId;
-    console.log('userId:', userId);
 
     // 1. Stats de parrainage et filleuls
     const referralData = await getReferralDashboardRaw(userId);
-    console.log('referralData:', referralData);
 
     // 2. Commissions boost/elite/missions
     const [[boostCommissions]] = await db.query(
@@ -82,13 +80,13 @@ export const getAmbassadorStats = async (req, res) => {
       [userId]
     );
     const [[missionCommissions]] = await db.query(
-      `SELECT IFNULL(SUM(amount),0) as total FROM wallet_transactions WHERE walletId = (SELECT id FROM wallets WHERE userId = ?) AND type = 'release'`,
+      `SELECT IFNULL(SUM(amount),0) as total FROM wallet_transactions WHERE walletId = (SELECT id FROM wallets WHERE userId = ?) AND type = 'referralMission'`,
       [userId]
     );
 
     // 3. Historique de paiements ambassadeur
     const [paymentHistory] = await db.query(
-      `SELECT id, amount, createdAt, type FROM wallet_transactions WHERE walletId = (SELECT id FROM wallets WHERE userId = ?) AND type IN ('referral', 'release') ORDER BY createdAt DESC LIMIT 20`,
+      `SELECT id, amount, createdAt, type FROM wallet_transactions WHERE walletId = (SELECT id FROM wallets WHERE userId = ?) AND type IN ('referral', 'referral_bonus') ORDER BY createdAt DESC LIMIT 20`,
       [userId]
     );
 

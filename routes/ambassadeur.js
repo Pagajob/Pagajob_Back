@@ -1,7 +1,7 @@
 // api/routes/ambassador.js
 import express from 'express';
 import { getAmbassadorStats } from '../controllers/ambassadeur.js';
-import { verifyToken } from '../middlewares/auth.js';
+import { verifyToken } from '../controllers/payment.js';
 
 const router = express.Router();
 

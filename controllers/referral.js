@@ -69,9 +69,19 @@ export const getReferralDashboard = async (req, res) => {
 
 // Gère la commission de parrainage
 export async function handleReferralCommission({ referredBy, userId, refTier, session }) {
+  // Récupère le statut ambassadeur du parrain
+  const [parrainRows] = await db.query('SELECT isAmbassador FROM users WHERE id = ?', [referredBy]);
+  const isAmbassador = parrainRows[0]?.isAmbassador === 1 || parrainRows[0]?.isAmbassador === true;
+
+  // Définis le taux selon le statut ambassadeur
   let percent = 0;
-  if (refTier === 'boost') percent = 0.15;
-  if (refTier === 'elite') percent = 0.30;
+  if (isAmbassador) {
+    if (refTier === 'boost') percent = 0.30;
+    if (refTier === 'elite') percent = 0.15;
+  } else {
+    if (refTier === 'boost') percent = 0.15;
+    if (refTier === 'elite') percent = 0.30;
+  }
 
   if (percent > 0) {
     // Calcule le montant de la commission

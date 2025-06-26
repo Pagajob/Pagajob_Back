@@ -88,7 +88,7 @@ export const getAmbassadorStats = async (req, res) => {
 
     // 3. Historique de paiements ambassadeur
     const [paymentHistory] = await db.query(
-      `SELECT id, amount, createdAt, status FROM wallet_transactions WHERE walletId = (SELECT id FROM wallets WHERE userId = ?) AND type IN ('referral', 'release') ORDER BY createdAt DESC LIMIT 20`,
+      `SELECT id, amount, createdAt, type FROM wallet_transactions WHERE walletId = (SELECT id FROM wallets WHERE userId = ?) AND type IN ('referral', 'release') ORDER BY createdAt DESC LIMIT 20`,
       [userId]
     );
 

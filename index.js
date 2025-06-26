@@ -85,7 +85,7 @@ app.use('/api/xoxoday', xoxodayRoutes);
 app.use('/api/students', studentsRoutes);
 app.use('/api/jackpot', jackpotRoutes);
 app.use('/api/utils', utilsRoutes);
-app.use('/api/ambassador', ambassadeurRoutes);
+app.use('/api/ambassadeur', ambassadeurRoutes);
 
 const port = process.env.PORT || 8800;
 app.listen(port, () => {

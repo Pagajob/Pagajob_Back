@@ -94,7 +94,7 @@ export const getAmbassadorStats = async (req, res) => {
 
     // 4. Coordonnées bancaires
     const [[bankDetails]] = await db.query(
-      `SELECT accountHolder, iban, bic, paypalEmail FROM users WHERE id = ?`,
+      `SELECT lastName, firstName, iban FROM users WHERE id = ?`,
       [userId]
     );
 

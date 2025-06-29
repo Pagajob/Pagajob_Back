@@ -107,7 +107,8 @@ export const orderGiftCard = async (req, res) => {
 
 export async function getXoxodayBrands(req, res) {
   try {
-    const accessToken = process.env.access_token;
+    const accessToken = process.env.ACCESS_TOKEN;
+    console.log('Token utilisé pour Xoxoday:', accessToken);
     const response = await axios.post(
       'https://canvas.xoxoday.com/chef/v1/oauth/api',
       {
@@ -115,21 +116,13 @@ export async function getXoxodayBrands(req, res) {
         tag: "plumProAPI",
         variables: {
           data: {
-            limit: 100, // ou 0 pour tout, mais 100 c'est plus safe
+            limit: 100,
             page: 0,
             includeProducts: "",
             excludeProducts: "",
             exchangeRate: "1",
-            sort: {
-              field: "",
-              order: ""
-            },
-            filters: [
-              {
-                key: "",
-                value: ""
-              }
-            ]
+            sort: { field: "", order: "" },
+            filters: [{ key: "", value: "" }]
           }
         }
       },

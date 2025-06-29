@@ -112,17 +112,17 @@ export async function getXoxodayBrands(req, res) {
     const response = await axios.post(
       'https://canvas.xoxoday.com/chef/v1/oauth/api',
       {
-        query: "plumProAPI.mutation.getVouchers",
-        tag: "plumProAPI",
-        variables: {
-          data: {
-            limit: 100,
-            page: 0,
-            includeProducts: "",
-            excludeProducts: "",
-            exchangeRate: "1",
-            sort: { field: "", order: "" },
-            filters: [{ key: "", value: "" }]
+        "query": "plumProAPI.mutation.getVouchers",
+        "tag": "plumProAPI",
+        "variables": {
+          "data": {
+            "limit": 0,
+            "page": 0,
+            "includeProducts": "",
+            "excludeProducts": "",
+            "exchangeRate": "1",
+            "sort": { "field": "", "order": "" },
+            "filters": [{ "key": "", "value": "" }]
           }
         }
       },
@@ -133,9 +133,10 @@ export async function getXoxodayBrands(req, res) {
         }
       }
     );
-    res.json(response.data);
+    console.log('Réponse brute Xoxoday:', JSON.stringify(response.data, null, 2));
+    res.json(response.data); // Pour debug, retourne tout
   } catch (err) {
-    console.error(err.response?.data || err);
+    console.error('Erreur Xoxoday:', err.response?.data || err);
     res.status(500).json({ error: "Erreur lors de la récupération des marques Xoxoday", details: err.response?.data || err.message });
   }
 }

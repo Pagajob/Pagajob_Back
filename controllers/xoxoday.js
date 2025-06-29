@@ -104,3 +104,32 @@ export const orderGiftCard = async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la commande de la carte cadeau' });
   }
 };
+
+export async function getXoxodayBrands(req, res) {
+  try {
+    const accessToken = process.env.access_token;
+    const response = await axios.post(
+      'https://canvas.xoxoday.com/chef/v1/oauth/api',
+      {
+        tag: "xoxo_link",
+        query: "xoxo_link.query.campaignList",
+        variables: {
+          add_data: {
+            limit: 100,
+            offset: 0
+          }
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    res.json(response.data);
+  } catch (err) {
+    console.error(err.response?.data || err);
+    res.status(500).json({ error: "Erreur lors de la récupération des marques Xoxoday" });
+  }
+}

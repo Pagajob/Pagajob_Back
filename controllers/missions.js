@@ -450,6 +450,11 @@ export const validateMissionCompany = async (req, res) => {
                 new Date()
               ]
             );
+            // 5. Ajoute dans le wallet du parrain
+            await db.query(
+              "UPDATE wallets SET balance = balance + ? WHERE userId = ?",
+              [referralAmount, parrainId]
+            );
           }
         }
       }
@@ -585,6 +590,11 @@ export const validateMissionStudent = async (req, res) => {
                   "5% de parrainage pour le parrain",
                   new Date()
                 ]
+              );
+              // 5. Ajoute dans le wallet du parrain
+              await db.query(
+                "UPDATE wallets SET balance = balance + ? WHERE userId = ?",
+                [referralAmount, parrainId]
               );
             }
           }

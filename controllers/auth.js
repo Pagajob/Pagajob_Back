@@ -175,7 +175,7 @@ export const getCurrentUser = async (req, res) => {
   if (!token) return res.status(401).json({ error: "Non authentifié" });
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const [[user]] = await db.query("SELECT id, firstName, lastName, email, role, subscriptionTier FROM users WHERE id = ?", [decoded.id]);
+    const [[user]] = await db.query("SELECT * FROM users WHERE id = ?", [decoded.id]);
     if (!user) return res.status(404).json({ error: "Utilisateur non trouvé" });
     res.json(user);
   } catch (err) {

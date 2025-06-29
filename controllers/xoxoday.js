@@ -54,23 +54,22 @@ export const orderGiftCard = async (req, res) => {
 
     const token = await getXoxoToken();
 
-    // Récupère dynamiquement le campaignId selon la marque
-    const campaignId = await getCampaignIdByBrand(brandCode, token);
-
-    if (!campaignId) {
-      return res.status(404).json({ error: "Aucune campagne trouvée pour cette marque" });
-    }
-
+    // Appel à Xoxoday
     const orderRes = await axios.post(
-      `${XOXO_BASE_URL}/v1/oauth/api`,
+      'https://canvas.xoxoday.com/chef/v1/oauth/api',
       {
-        tag: "xoxo_link",
-        query: "xoxo_link.mutation.generateLinkEmail",
+        query: "plumProAPI.mutation.placeOrder",
+        tag: "plumProAPI",
         variables: {
           data: {
-            campaignId: campaignId,
-            email_ids: email,
-            link_expiry: "31-12-2025"
+            productId: brandCode,
+            quantity: 1,
+            denomination: amount,
+            email: email,
+            contact: "",
+            tag: "",
+            poNumber: "",
+            notifyReceiverEmail: 0
           }
         }
       },
@@ -82,23 +81,7 @@ export const orderGiftCard = async (req, res) => {
       }
     );
 
-    // Récupère nom et prénom de l'utilisateur
-    const [userRows] = await db.query('SELECT firstName, lastName FROM users WHERE id = ?', [userId]);
-    const user = userRows[0];
-    const description = `Carte cadeau ${brandCode} - ${user.firstName} ${user.lastName} (id:${userId})`;
-
-    // Si succès, débite le wallet et ajoute une transaction
-    if (orderRes.data.status === 'SUCCESS') {
-      await db.query(
-        "UPDATE wallets SET balance = balance - ? WHERE userId = ?",
-        [amount, userId]
-      );
-      await db.query(
-        "INSERT INTO wallet_transactions (walletId, type, amount, description, createdAt) VALUES ((SELECT id FROM wallets WHERE userId = ?), 'giftcard', ?, ?, ?)",
-        [userId, amount, description, new Date()]
-      );
-    }
-
+    // Ici, tu ne touches pas au wallet
     res.json(orderRes.data);
   } catch (err) {
     res.status(500).json({ error: 'Erreur lors de la commande de la carte cadeau' });

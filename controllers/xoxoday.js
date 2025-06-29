@@ -133,8 +133,9 @@ export async function getXoxodayBrands(req, res) {
         }
       }
     );
-    console.log('Réponse brute Xoxoday:', JSON.stringify(response.data, null, 2));
-    res.json(response.data); // Pour debug, retourne tout
+    // Retourne uniquement le tableau des cartes cadeaux
+    const vouchers = response.data?.data?.getVouchers?.data || [];
+    res.json(vouchers);
   } catch (err) {
     console.error('Erreur Xoxoday:', err.response?.data || err);
     res.status(500).json({ error: "Erreur lors de la récupération des marques Xoxoday", details: err.response?.data || err.message });

@@ -44,6 +44,7 @@ async function getCampaignIdByBrand(brandCode, token) {
 // 2. Commander une carte cadeau
 export const orderGiftCard = async (req, res) => {
   try {
+    const accessToken = process.env.ACCESS_TOKEN;
     console.log('Réception commande carte cadeau:', req.body);
 
     const { brandCode, amount, email, userId } = req.body;
@@ -87,7 +88,7 @@ export const orderGiftCard = async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         }
       }

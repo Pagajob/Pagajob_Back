@@ -74,9 +74,9 @@ export const orderGiftCard = async (req, res) => {
         tag: "plumProAPI",
         variables: {
           data: {
-            productId: brandCode,
+            productId: String(brandCode),
             quantity: 1,
-            denomination: amount,
+            denomination: Number(amount),
             email: email,
             contact: "",
             tag: "",

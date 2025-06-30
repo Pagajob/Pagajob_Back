@@ -68,27 +68,31 @@ export const orderGiftCard = async (req, res) => {
       email: email
     });
 
+    const xoxodayBody = {
+      query: "plumProAPI.mutation.placeOrder",
+      tag: "plumProAPI",
+      variables: {
+        data: {
+          productId: String(brandCode),
+          quantity: 1,
+          denomination: Number(amount),
+          email: email,
+          contact: "",
+          tag: "",
+          poNumber: "",
+          notifyReceiverEmail: 0
+        }
+      }
+    };
+
+    console.log('Body envoyé à Xoxoday:', JSON.stringify(xoxodayBody, null, 2));
+
     const orderRes = await axios.post(
       'https://canvas.xoxoday.com/chef/v1/oauth/api',
-      {
-        query: "plumProAPI.mutation.placeOrder",
-        tag: "plumProAPI",
-        variables: {
-          data: {
-            productId: String(brandCode),
-            quantity: 1,
-            denomination: Number(amount),
-            email: email,
-            contact: "",
-            tag: "",
-            poNumber: "",
-            notifyReceiverEmail: 0
-          }
-        }
-      },
+      xoxodayBody,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${token}`, // <-- Utilise bien le token généré dynamiquement !
           'Content-Type': 'application/json'
         }
       }

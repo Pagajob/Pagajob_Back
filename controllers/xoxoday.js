@@ -49,13 +49,11 @@ async function getCampaignIdByBrand(brandCode, token) {
 export const orderGiftCard = async (req, res) => {
   try {
     const accessToken = process.env.ACCESS_TOKEN;
-    console.log('Réception commande carte cadeau:', req.body);
 
     const { brandCode, amount, email, userId } = req.body;
 
     // Vérifie le solde du wallet
     const [walletRows] = await db.query('SELECT balance FROM wallets WHERE userId = ?', [userId]);
-    console.log('Résultat requête wallet:', walletRows);
     if (!walletRows.length || walletRows[0].balance < amount) {
       console.warn('Solde insuffisant pour userId:', userId);
       return res.status(400).json({ error: "Solde insuffisant" });
@@ -63,14 +61,6 @@ export const orderGiftCard = async (req, res) => {
 
     //const token = await getXoxoToken();
     //console.log('Token Xoxoday récupéré:', token ? 'OK' : 'KO');
-
-    // Appel à Xoxoday
-    console.log('Envoi de la commande à Xoxoday:', {
-      productId: brandCode,
-      quantity: 1,
-      denomination: amount,
-      email: email
-    });
 
     const xoxodayBody = {
       query: "plumProAPI.mutation.placeOrder",
@@ -89,8 +79,6 @@ export const orderGiftCard = async (req, res) => {
       }
     };
 
-    console.log('Body envoyé à Xoxoday:', JSON.stringify(xoxodayBody, null, 2));
-
     const orderRes = await axios.post(
       'https://canvas.xoxoday.com/chef/v1/oauth/api',
       xoxodayBody,
@@ -101,8 +89,6 @@ export const orderGiftCard = async (req, res) => {
         }
       }
     );
-
-    console.log('Réponse Xoxoday:', JSON.stringify(orderRes.data, null, 2));
     res.json(orderRes.data);
   } catch (err) {
     console.error('Erreur lors de la commande carte cadeau:', err.response?.data || err.message || err);

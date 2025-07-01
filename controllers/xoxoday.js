@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { db } from '../connect.js';
+import xoxoday from '@xoxoday/v1.0';
 
 const XOXO_CLIENT_ID = process.env.XOXO_CLIENT_ID;
 const XOXO_CLIENT_SECRET = process.env.XOXO_CLIENT_SECRET;
@@ -7,11 +8,15 @@ const XOXO_BASE_URL = 'https://canvas.xoxoday.com/chef';
 
 // 1. Authentification
 async function getXoxoToken() {
-  const res = await axios.post(`${XOXO_BASE_URL}/v1/oauth/token`, {
-    client_id: XOXO_CLIENT_ID,
-    client_secret: XOXO_CLIENT_SECRET,
-    grant_type: 'client_credentials'
-  });
+  const res = await axios.post(
+    'https://canvas.xoxoday.com/chef/v1/oauth/token/user',
+    {
+      grant_type: 'refresh_token',
+      refresh_token: process.env.XOXO_REFRESH_TOKEN,
+      client_id: process.env.XOXO_CLIENT_ID,
+      client_secret: process.env.XOXO_CLIENT_SECRET
+    }
+  );
   return res.data.access_token;
 }
 
@@ -57,8 +62,8 @@ export const orderGiftCard = async (req, res) => {
       return res.status(400).json({ error: "Solde insuffisant" });
     }
 
-    const token = await getXoxoToken();
-    console.log('Token Xoxoday récupéré:', token ? 'OK' : 'KO');
+    //const token = await getXoxoToken();
+    //console.log('Token Xoxoday récupéré:', token ? 'OK' : 'KO');
 
     // Appel à Xoxoday
     console.log('Envoi de la commande à Xoxoday:', {
@@ -92,7 +97,7 @@ export const orderGiftCard = async (req, res) => {
       xoxodayBody,
       {
         headers: {
-          Authorization: `Bearer ${token}`, // <-- Utilise bien le token généré dynamiquement !
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         }
       }

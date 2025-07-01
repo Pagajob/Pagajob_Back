@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { db } from '../connect.js';
-import xoxoday from '@xoxoday/v1.0';
 
 const XOXO_CLIENT_ID = process.env.XOXO_CLIENT_ID;
 const XOXO_CLIENT_SECRET = process.env.XOXO_CLIENT_SECRET;

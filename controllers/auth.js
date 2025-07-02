@@ -222,10 +222,6 @@ export const changePasswordWithToken = async (req, res) => {
 
     const now = nowRows[0].now;
 
-    console.log("resetExpires en base :", user?.resetExpires);
-    console.log("NOW côté SQL :", now);
-    console.log("NOW côté JS :", new Date());
-
     if (!user || new Date(user.resetExpires) < new Date(now)) {
       return res.status(400).json({ error: "Lien invalide ou expiré" });
     }

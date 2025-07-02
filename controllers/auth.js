@@ -257,6 +257,7 @@ export const confirmEmail = async (req, res) => {
 
   await db.query("UPDATE users SET isVerified = 1, emailToken = NULL WHERE id = ?", [user.id]);
 
+  const confirmLink = `${FRONTEND_URL}/confirm-email?token=${token}`;
   const mail = mailVerifie({ firstName: user.firstName, confirmLink });
   await sendMail({
     to: user.email,
